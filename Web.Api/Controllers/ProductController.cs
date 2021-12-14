@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.EventSourcing;
+using Warehouse;
 
 namespace Web.Api.Controllers
 {
