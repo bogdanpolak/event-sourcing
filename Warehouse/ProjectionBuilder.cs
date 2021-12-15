@@ -12,11 +12,12 @@ namespace Warehouse
             _dbContext = dbContext;
         }
 
-        public void ReceiveEvents(IEnumerable<IEvent> events)
+        public static void ProcessEvents(IEnumerable<IEvent> events, ProductDbContext dbContext)
         {
+            var projectionBuilder = new ProjectionBuilder(dbContext);
             foreach (var @event in events)
             {
-                ReceiveEvent(@event);
+                projectionBuilder.ReceiveEvent(@event);
             }
         }
 

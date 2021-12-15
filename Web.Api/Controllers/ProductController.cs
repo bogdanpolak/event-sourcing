@@ -10,10 +10,6 @@ namespace Web.Api.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private string SkuLaptop { get; } = CreateNewSku("C-", "-laptop");
-        private string SkuDockingStation { get; } = CreateNewSku("C-", "-docking");
-        private string SkuMonitor { get; } = CreateNewSku("C-", "-monitor");
-
         private readonly ProductDbContext _dbContext;
 
         public ProductController(
@@ -23,30 +19,40 @@ namespace Web.Api.Controllers
         }
         
         [HttpGet]
-        public IEnumerable<Product> GetProduct()
+        public IActionResult GetProduct()
         {
             var events = new IEvent[]
             {
-                new ProductReceived(SkuLaptop, 5),
-                new ProductShipped(SkuLaptop, 1),
-                new ProductReceived(SkuMonitor,10),
-                new ProductReceived(SkuDockingStation, 5),
-                new ProductShipped(SkuLaptop,3),
-                new ProductShipped(SkuDockingStation, 3),
-                new ProductShipped(SkuMonitor, 3),
-                new ProductReceived(SkuLaptop, 5),
-                new ProductShipped(SkuLaptop, 1),
+                new ProductReceived(Sku.Laptop, 5),
+                new ProductShipped(Sku.Laptop, 1),
+                new ProductReceived(Sku.Monitor,10),
+                new ProductReceived(Sku.DockingStation, 5),
+                new ProductShipped(Sku.Laptop,3),
+                new ProductShipped(Sku.DockingStation, 3),
+                new ProductShipped(Sku.Monitor, 3),
+                new ProductReceived(Sku.Laptop, 5),
+                new ProductShipped(Sku.Laptop, 1),
             };
 
-            new ProjectionBuilder(_dbContext).ReceiveEvents(events);
-            
-            return _dbContext.Products.ToList();
+            ProjectionBuilder.ProcessEvents(events, _dbContext);
+
+            var products = _dbContext.Products.ToArray();
+
+            return Ok(products);
         }
 
-        private static string CreateNewSku(string prefix, string suffix)
+        private static class Sku
         {
-            var random = new Random();
-            return $"{prefix}{100000 + random.Next(899999)}{suffix}";
+            public static string Laptop { get; } = CreateNewSku("C-", "-laptop");
+            public static string DockingStation { get; } = CreateNewSku("C-", "-docking");
+            public static string Monitor { get; } = CreateNewSku("C-", "-monitor");
+
+            private static string CreateNewSku(string prefix, string suffix)
+            {
+                var random = new Random();
+                return $"{prefix}{100000 + random.Next(899999)}{suffix}";
+            }
+
         }
     }
 }
