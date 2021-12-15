@@ -10,6 +10,10 @@ namespace Web.Api.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
+        private string SkuLaptop { get; } = CreateNewSku("C-", "-laptop");
+        private string SkuDockingStation { get; } = CreateNewSku("C-", "-docking");
+        private string SkuMonitor { get; } = CreateNewSku("C-", "-monitor");
+
         private readonly ProductDbContext _dbContext;
 
         public ProductController(
@@ -21,28 +25,28 @@ namespace Web.Api.Controllers
         [HttpGet]
         public IEnumerable<Product> GetProduct()
         {
-            var number = _dbContext.Products.Count()+1;
-            _dbContext.Products.Add(new Product
+            var events = new IEvent[]
             {
-                Sku = CreateNewSku(number),
-                Received = 100,
-                Shipped = 45
-            });
-            _dbContext.Products.Add(new Product
-            {
-                Sku = CreateNewSku(number),
-                Received = 250,
-                Shipped = 190
-            });
-            _dbContext.SaveChanges();
+                new ProductReceived(SkuLaptop, 5),
+                new ProductShipped(SkuLaptop, 1),
+                new ProductReceived(SkuMonitor,10),
+                new ProductReceived(SkuDockingStation, 5),
+                new ProductShipped(SkuLaptop,3),
+                new ProductShipped(SkuDockingStation, 3),
+                new ProductShipped(SkuMonitor, 3),
+                new ProductReceived(SkuLaptop, 5),
+                new ProductShipped(SkuLaptop, 1),
+            };
+
+            new ProjectionBuilder(_dbContext).ReceiveEvents(events);
             
             return _dbContext.Products.ToList();
         }
 
-        private string CreateNewSku(int number)
+        private static string CreateNewSku(string prefix, string suffix)
         {
             var random = new Random();
-            return $"INV-{10000 + random.Next(89999)}-{number}";
+            return $"{prefix}{100000 + random.Next(899999)}{suffix}";
         }
     }
 }

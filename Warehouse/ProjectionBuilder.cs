@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Warehouse
 {
@@ -9,6 +10,14 @@ namespace Warehouse
         public ProjectionBuilder(ProductDbContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public void ReceiveEvents(IEnumerable<IEvent> events)
+        {
+            foreach (var @event in events)
+            {
+                ReceiveEvent(@event);
+            }
         }
 
         public void ReceiveEvent(IEvent @event)
@@ -58,8 +67,8 @@ namespace Warehouse
     {
     }
 
-    internal record ProductShipped(string Sku, int Quantity) : IEvent;
+    public record ProductShipped(string Sku, int Quantity) : IEvent;
 
-    internal record ProductReceived(string Sku, int Quantity) : IEvent;
+    public record ProductReceived(string Sku, int Quantity) : IEvent;
 
 }
