@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.EventSourcing;
+using Warehouse;
 
 namespace Web.Api.Controllers
 {
@@ -19,30 +19,40 @@ namespace Web.Api.Controllers
         }
         
         [HttpGet]
-        public IEnumerable<Product> GetProduct()
+        public IActionResult GetProduct()
         {
-            var number = _dbContext.Products.Count()+1;
-            _dbContext.Products.Add(new Product
+            var events = new IEvent[]
             {
-                Sku = CreateNewSku(number),
-                Received = 100,
-                Shipped = 45
-            });
-            _dbContext.Products.Add(new Product
-            {
-                Sku = CreateNewSku(number),
-                Received = 250,
-                Shipped = 190
-            });
-            _dbContext.SaveChanges();
-            
-            return _dbContext.Products.ToList();
+                new ProductReceived(Sku.Laptop, 5),
+                new ProductShipped(Sku.Laptop, 1),
+                new ProductReceived(Sku.Monitor,10),
+                new ProductReceived(Sku.DockingStation, 5),
+                new ProductShipped(Sku.Laptop,3),
+                new ProductShipped(Sku.DockingStation, 3),
+                new ProductShipped(Sku.Monitor, 3),
+                new ProductReceived(Sku.Laptop, 5),
+                new ProductShipped(Sku.Laptop, 1),
+            };
+
+            ProjectionBuilder.ProcessEvents(events, _dbContext);
+
+            var products = _dbContext.Products.ToArray();
+
+            return Ok(products);
         }
 
-        private string CreateNewSku(int number)
+        private static class Sku
         {
-            var random = new Random();
-            return $"INV-{10000 + random.Next(89999)}-{number}";
+            public static string Laptop { get; } = CreateNewSku("C-", "-laptop");
+            public static string DockingStation { get; } = CreateNewSku("C-", "-docking");
+            public static string Monitor { get; } = CreateNewSku("C-", "-monitor");
+
+            private static string CreateNewSku(string prefix, string suffix)
+            {
+                var random = new Random();
+                return $"{prefix}{100000 + random.Next(899999)}{suffix}";
+            }
+
         }
     }
 }
