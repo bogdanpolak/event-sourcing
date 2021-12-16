@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Warehouse.Events;
+using Warehouse.Storage;
 
-namespace Warehouse
+namespace Warehouse.ReadModels
 {
     public class ProjectionBuilder
     {
@@ -26,6 +27,9 @@ namespace Warehouse
         {
             switch (@event)
             {
+                case ProductAdjusted adjustProduct:
+                    Apply(adjustProduct);
+                    break;
                 case ProductShipped shipProduct:
                     Apply(shipProduct);
                     break;
@@ -48,6 +52,13 @@ namespace Warehouse
             }
 
             return product;
+        }
+
+        private void Apply(ProductAdjusted adjustProduct)
+        {
+            var product = GetProduct(adjustProduct.Sku);
+            product.Adjusted += adjustProduct.Quantity;
+            _dbContext.SaveChanges();
         }
 
         private void Apply(ProductShipped shipProduct)

@@ -1,4 +1,6 @@
-﻿namespace Warehouse.Events
+﻿using System;
+
+namespace Warehouse.Events
 {
-    public record ProductReceived(string Sku, int Quantity) : IEvent;
+    public record ProductReceived(string Sku, int Quantity, DateTime Created) : IEvent;
 }

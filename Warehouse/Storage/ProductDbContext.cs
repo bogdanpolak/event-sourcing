@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Warehouse.ReadModels;
 
-namespace Warehouse
+namespace Warehouse.Storage
 {
     public class ProductDbContext : DbContext
     {
