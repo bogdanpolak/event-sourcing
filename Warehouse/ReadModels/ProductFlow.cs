@@ -1,6 +1,6 @@
 ﻿namespace Warehouse.ReadModels
 {
-    public class Product
+    public class ProductFlow
     {
         public string Sku { get; set; }
         public int Received { get; set; }

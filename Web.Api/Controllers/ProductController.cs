@@ -12,10 +12,10 @@ namespace Web.Api.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private readonly ProductDbContext _dbContext;
+        private readonly WarehouseDbContext _dbContext;
 
         public ProductController(
-            ProductDbContext dbContext)
+            WarehouseDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -39,9 +39,9 @@ namespace Web.Api.Controllers
                 new ProductShipped(Sku.Laptop, 1, 21.May(2021)),
             };
 
-            ProjectionBuilder.ProcessEvents(events, _dbContext);
+            ProductFlowProjectionBuilder.ProcessEvents(events, _dbContext);
 
-            var products = _dbContext.Products.ToArray();
+            var products = _dbContext.ProductsFlows.ToArray();
 
             return Ok(products);
         }

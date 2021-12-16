@@ -3,14 +3,14 @@ using Warehouse.ReadModels;
 
 namespace Warehouse.Storage
 {
-    public class ProductDbContext : DbContext
+    public class WarehouseDbContext : DbContext
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductFlow> ProductsFlows { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Product>().HasKey(x => x.Sku);
+            modelBuilder.Entity<ProductFlow>().HasKey(x => x.Sku);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
