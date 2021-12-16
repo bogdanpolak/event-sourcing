@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
 using Warehouse;
 
 namespace Web.Api.Controllers
@@ -17,7 +16,7 @@ namespace Web.Api.Controllers
         {
             _dbContext = dbContext;
         }
-        
+
         [HttpGet]
         public IActionResult GetProduct()
         {
