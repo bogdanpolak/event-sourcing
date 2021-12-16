@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using Warehouse;
+using Warehouse.Events;
 
 namespace Web.Api.Controllers
 {

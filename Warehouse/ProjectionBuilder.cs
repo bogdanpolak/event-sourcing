@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Warehouse.Events;
 
 namespace Warehouse
 {
@@ -63,13 +64,4 @@ namespace Warehouse
             _dbContext.SaveChanges();
         }
     }
-
-    public interface IEvent
-    {
-    }
-
-    public record ProductShipped(string Sku, int Quantity) : IEvent;
-
-    public record ProductReceived(string Sku, int Quantity) : IEvent;
-
 }
