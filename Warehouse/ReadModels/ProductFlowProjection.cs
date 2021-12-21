@@ -5,25 +5,32 @@ using Warehouse.Storage;
 
 namespace Warehouse.ReadModels
 {
-    public class ProductFlowProjectionBuilder
+    public class ProductFlowProjection
     {
         private readonly WarehouseDbContext _warehouseDbContext;
 
-        public ProductFlowProjectionBuilder(WarehouseDbContext warehouseDbContext)
+        private ProductFlowProjection(WarehouseDbContext warehouseDbContext)
         {
             _warehouseDbContext = warehouseDbContext;
         }
 
-        public static void ProcessEvents(IEnumerable<IEvent> events, WarehouseDbContext warehouseDbContext)
+        public static void Build(IEnumerable<IEvent> events, WarehouseDbContext warehouseDbContext)
         {
-            var projectionBuilder = new ProductFlowProjectionBuilder(warehouseDbContext);
+            var projectionBuilder = new ProductFlowProjection(warehouseDbContext);
+            projectionBuilder.ProcessEvents(events);
+        }
+
+        private void ProcessEvents(IEnumerable<IEvent> events)
+        {
+            var projectionBuilder = new ProductFlowProjection(_warehouseDbContext);
+            _warehouseDbContext.ProductsFlows.RemoveRange(_warehouseDbContext.ProductsFlows);
             foreach (var @event in events)
             {
                 projectionBuilder.ReceiveEvent(@event);
             }
         }
 
-        public void ReceiveEvent(IEvent @event)
+        private void ReceiveEvent(IEvent @event)
         {
             switch (@event)
             {
@@ -39,10 +46,10 @@ namespace Warehouse.ReadModels
             }
         }
 
-        public ProductFlow GetProduct(string sku)
+        private ProductFlow GetProduct(string sku)
         {
             var product = _warehouseDbContext.ProductsFlows.SingleOrDefault(x => x.Sku == sku);
-            if (product == null)
+            if (product is null)
             {
                 product = new ProductFlow
                 {
@@ -56,22 +63,25 @@ namespace Warehouse.ReadModels
 
         private void Apply(ProductAdjusted adjustProduct)
         {
-            var product = GetProduct(adjustProduct.Sku);
-            product.Adjusted += adjustProduct.Quantity;
+            var (sku, quantity, _) = adjustProduct;
+            var product = GetProduct(sku);
+            product.Adjusted += quantity;
             _warehouseDbContext.SaveChanges();
         }
 
         private void Apply(ProductShipped shipProduct)
         {
-            var product = GetProduct(shipProduct.Sku);
-            product.Shipped += shipProduct.Quantity;
+            var (sku, quantity, _) = shipProduct;
+            var product = GetProduct(sku);
+            product.Shipped += quantity;
             _warehouseDbContext.SaveChanges();
         }
 
         private void Apply(ProductReceived productReceived)
         {
-            var state = GetProduct(productReceived.Sku);
-            state.Received += productReceived.Quantity;
+            var (sku, quantity, _) = productReceived;
+            var state = GetProduct(sku);
+            state.Received += quantity;
             _warehouseDbContext.SaveChanges();
         }
     }

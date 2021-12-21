@@ -39,7 +39,7 @@ namespace Web.Api.Controllers
                 new ProductShipped(Sku.Laptop, 1, 21.May(2021)),
             };
 
-            ProductFlowProjectionBuilder.ProcessEvents(events, _dbContext);
+            ProductFlowProjection.Build(events, _dbContext);
 
             var products = _dbContext.ProductsFlows.ToArray();
 
