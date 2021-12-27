@@ -5,18 +5,18 @@ using Warehouse.Storage;
 
 namespace Warehouse.ReadModels
 {
-    public class ProductFlowProjection
+    public class ProductQuantityProjection
     {
         private readonly WarehouseDbContext _warehouseDbContext;
 
-        private ProductFlowProjection(WarehouseDbContext warehouseDbContext)
+        public ProductQuantityProjection(WarehouseDbContext warehouseDbContext)
         {
             _warehouseDbContext = warehouseDbContext;
         }
-
+        
         public static void Build(IEnumerable<IEvent> events, WarehouseDbContext warehouseDbContext)
         {
-            var projectionBuilder = new ProductFlowProjection(warehouseDbContext);
+            var projectionBuilder = new ProductQuantityProjection(warehouseDbContext);
             projectionBuilder.ProcessEvents(events);
         }
 
@@ -28,7 +28,7 @@ namespace Warehouse.ReadModels
                 ReceiveEvent(@event);
             }
         }
-
+        
         private void ReceiveEvent(IEvent @event)
         {
             switch (@event)
@@ -44,7 +44,7 @@ namespace Warehouse.ReadModels
                     break;
             }
         }
-
+        
         private ProductFlow GetProduct(string sku)
         {
             var product = _warehouseDbContext.ProductsFlows.SingleOrDefault(x => x.Sku == sku);
@@ -59,29 +59,23 @@ namespace Warehouse.ReadModels
 
             return product;
         }
-
+        
         private void Apply(ProductAdjusted adjustProduct)
         {
-            var (sku, quantity, _) = adjustProduct;
-            var product = GetProduct(sku);
-            product.Adjusted += quantity;
-            _warehouseDbContext.SaveChanges();
+            throw new System.NotImplementedException();
         }
 
-        private void Apply(ProductShipped shipProduct)
+        private void Apply(ProductShipped adjustProduct)
         {
-            var (sku, quantity, _) = shipProduct;
-            var product = GetProduct(sku);
-            product.Shipped += quantity;
-            _warehouseDbContext.SaveChanges();
+            throw new System.NotImplementedException();
         }
 
-        private void Apply(ProductReceived productReceived)
+        private void Apply(ProductReceived adjustProduct)
         {
-            var (sku, quantity, _) = productReceived;
-            var state = GetProduct(sku);
-            state.Received += quantity;
-            _warehouseDbContext.SaveChanges();
+            throw new System.NotImplementedException();
         }
+
+
+        
     }
 }
