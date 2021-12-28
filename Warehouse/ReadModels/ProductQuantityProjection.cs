@@ -10,7 +10,7 @@ namespace Warehouse.ReadModels
     {
         private readonly WarehouseDbContext _warehouseDbContext;
 
-        public ProductQuantityProjection(WarehouseDbContext warehouseDbContext)
+        private ProductQuantityProjection(WarehouseDbContext warehouseDbContext)
         {
             _warehouseDbContext = warehouseDbContext;
         }
