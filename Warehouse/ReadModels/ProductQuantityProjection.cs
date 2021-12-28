@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Warehouse.Events;
 using Warehouse.Storage;
@@ -22,7 +23,7 @@ namespace Warehouse.ReadModels
 
         private void ProcessEvents(IEnumerable<IEvent> events)
         {
-            _warehouseDbContext.ProductsFlows.RemoveRange(_warehouseDbContext.ProductsFlows);
+            _warehouseDbContext.ProductsQuantities.RemoveRange(_warehouseDbContext.ProductsQuantities);
             foreach (var @event in events)
             {
                 ReceiveEvent(@event);
@@ -45,16 +46,18 @@ namespace Warehouse.ReadModels
             }
         }
         
-        private ProductFlow GetProduct(string sku)
+        private ProductQuantity GetProductQuantity(string sku)
         {
-            var product = _warehouseDbContext.ProductsFlows.SingleOrDefault(x => x.Sku == sku);
+            var product = _warehouseDbContext.ProductsQuantities.SingleOrDefault(x => x.Sku == sku);
             if (product is null)
             {
-                product = new ProductFlow
+                product = new ProductQuantity
                 {
-                    Sku = sku
+                    Sku = sku,
+                    Quantity = 0,
+                    ReorderLevel = 10
                 };
-                _warehouseDbContext.ProductsFlows.Add(product);
+                _warehouseDbContext.ProductsQuantities.Add(product);
             }
 
             return product;
@@ -62,20 +65,25 @@ namespace Warehouse.ReadModels
         
         private void Apply(ProductAdjusted adjustProduct)
         {
-            throw new System.NotImplementedException();
+            ApplyChange(adjustProduct.Sku, +adjustProduct.Quantity, adjustProduct.Created);
         }
 
-        private void Apply(ProductShipped adjustProduct)
+        private void Apply(ProductShipped shipProduct)
         {
-            throw new System.NotImplementedException();
+            ApplyChange(shipProduct.Sku, -shipProduct.Quantity, shipProduct.Created);
         }
 
-        private void Apply(ProductReceived adjustProduct)
+        private void Apply(ProductReceived receiveProduct)
         {
-            throw new System.NotImplementedException();
+            ApplyChange(receiveProduct.Sku, +receiveProduct.Quantity, receiveProduct.Created);
         }
 
-
-        
+        private void ApplyChange(string sku, int quantityChange, DateTime created)
+        {
+            var productQuantity = GetProductQuantity(sku);
+            productQuantity.Quantity += quantityChange;
+            productQuantity.UpdateLastChange(created);
+            _warehouseDbContext.SaveChanges();        
+        }
     }
 }

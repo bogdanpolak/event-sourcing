@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Linq;
-using Warehouse;
 using Warehouse.Events;
 using Warehouse.ReadModels;
 using Warehouse.Storage;
@@ -20,14 +18,26 @@ namespace Web.Api.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpGet]
-        public IActionResult GetProduct()
+        [HttpGet("Flow")]
+        public IActionResult GetProductFlow()
         {
             var events = ProductEventStore.Build_Scenario1();
             
             ProductFlowProjection.Build(events, _dbContext);
 
             var products = _dbContext.ProductsFlows.ToArray();
+
+            return Ok(products);
+        }
+
+        [HttpGet("Quantity")]
+        public IActionResult GetProductQuantity()
+        {
+            var events = ProductEventStore.Build_Scenario1();
+            
+            ProductQuantityProjection.Build(events, _dbContext);
+
+            var products = _dbContext.ProductsQuantities.ToArray();
 
             return Ok(products);
         }

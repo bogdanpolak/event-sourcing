@@ -6,11 +6,13 @@ namespace Warehouse.Storage
     public class WarehouseDbContext : DbContext
     {
         public DbSet<ProductFlow> ProductsFlows { get; set; }
+        public DbSet<ProductQuantity> ProductsQuantities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ProductFlow>().HasKey(x => x.Sku);
+            modelBuilder.Entity<ProductQuantity>().HasKey(x => x.Sku);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
