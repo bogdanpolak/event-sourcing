@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Warehouse.Events;
+using Warehouse.ReadModels;
 using Warehouse.Storage;
 
-namespace Warehouse.ReadModels
+namespace Warehouse.Projections
 {
     public class ProductFlowProjection
     {

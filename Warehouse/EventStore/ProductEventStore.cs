@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Warehouse.Events;
 using Warehouse.Utils;
 
-namespace Warehouse.Events
+namespace Warehouse.EventStore
 {
     public static class ProductEventStore
     {

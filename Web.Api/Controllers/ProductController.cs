@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using Warehouse.Events;
-using Warehouse.ReadModels;
+using Warehouse.EventStore;
+using Warehouse.Projections;
 using Warehouse.Storage;
 
 namespace Web.Api.Controllers
