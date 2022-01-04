@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Warehouse.Events;
+using Warehouse.ReadModels;
 using Warehouse.Storage;
 
-namespace Warehouse.ReadModels
+namespace Warehouse.Projections
 {
     public class ProductFlowProjection
     {
@@ -22,11 +23,10 @@ namespace Warehouse.ReadModels
 
         private void ProcessEvents(IEnumerable<IEvent> events)
         {
-            var projectionBuilder = new ProductFlowProjection(_warehouseDbContext);
             _warehouseDbContext.ProductsFlows.RemoveRange(_warehouseDbContext.ProductsFlows);
             foreach (var @event in events)
             {
-                projectionBuilder.ReceiveEvent(@event);
+                ReceiveEvent(@event);
             }
         }
 
