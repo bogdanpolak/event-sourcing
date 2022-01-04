@@ -44,6 +44,9 @@ namespace Warehouse.Projections
                 case ProductReceived receiveProduct:
                     Apply(receiveProduct);
                     break;
+                case ReorderLevelAdjusted adjustReorderLevel:
+                    Apply(adjustReorderLevel);
+                    break;
             }
         }
         
@@ -55,8 +58,7 @@ namespace Warehouse.Projections
                 product = new ProductQuantity
                 {
                     Sku = sku,
-                    Quantity = 0,
-                    ReorderLevel = 10
+                    Quantity = 0
                 };
                 _warehouseDbContext.ProductsQuantities.Add(product);
             }
@@ -66,20 +68,27 @@ namespace Warehouse.Projections
         
         private void Apply(ProductAdjusted adjustProduct)
         {
-            ApplyChange(adjustProduct.Sku, +adjustProduct.Quantity, adjustProduct.Created);
+            ApplyQuantityChange(adjustProduct.Sku, +adjustProduct.Quantity, adjustProduct.Created);
         }
 
         private void Apply(ProductShipped shipProduct)
         {
-            ApplyChange(shipProduct.Sku, -shipProduct.Quantity, shipProduct.Created);
+            ApplyQuantityChange(shipProduct.Sku, -shipProduct.Quantity, shipProduct.Created);
         }
 
         private void Apply(ProductReceived receiveProduct)
         {
-            ApplyChange(receiveProduct.Sku, +receiveProduct.Quantity, receiveProduct.Created);
+            ApplyQuantityChange(receiveProduct.Sku, +receiveProduct.Quantity, receiveProduct.Created);
         }
 
-        private void ApplyChange(string sku, int quantityChange, DateTime created)
+        private void Apply(ReorderLevelAdjusted adjustReorderLevel)
+        {
+            var productQuantity = GetProductQuantity(adjustReorderLevel.Sku);
+            productQuantity.ReorderLevel = adjustReorderLevel.ReorderLevel;
+            _warehouseDbContext.SaveChanges();        
+        }
+
+        private void ApplyQuantityChange(string sku, int quantityChange, DateTime created)
         {
             var productQuantity = GetProductQuantity(sku);
             productQuantity.Quantity += quantityChange;
